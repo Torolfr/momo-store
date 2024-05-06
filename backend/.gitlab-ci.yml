@@ -1,3 +1,9 @@
+stages:
+  - test
+  - build
+  - release
+  - deploy
+
 include:
   - template: Security/SAST.gitlab-ci.yml
   - project: 'templates/ci'

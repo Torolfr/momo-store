@@ -2,7 +2,7 @@
 FROM node:16.20.0-alpine3.18 as builder
 WORKDIR /usr/src/app
 COPY . .
-RUN npm install && NODE_ENV=production VUE_APP_API_URL=/api npm run build
+RUN npm install && npm run build
 
 #release
 FROM nginx:1.23-alpine

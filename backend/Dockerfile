@@ -8,4 +8,4 @@ RUN go build -o main ./cmd/api
 FROM alpine:3.18.4
 COPY --from=builder /app/main .
 EXPOSE 8081
-CMD ["/main"]
+ENTRYPOINT ["./main"]

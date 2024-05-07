@@ -7,7 +7,7 @@
             try_files $uri $uri/ /index.html;
         }
     
-        location /api/ {
+        location ~ ^/(?:products|categories|orders|metrics|auth/whoami) {
             proxy_pass http://backend:8081;
         }
 

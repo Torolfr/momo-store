@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   backend:
-    image: $CI_REGISTRY_IMAGE/momo-backend:latest
+    image: ${CI_REGISTRY_IMAGE}/momo-backend:latest
     container_name: backend
     restart: always
     ports:
@@ -11,7 +11,7 @@ services:
       - momo-store
 
   frontend:
-    image: $CI_REGISTRY_IMAGE/momo-frontend:latest
+    image: ${CI_REGISTRY_IMAGE}/momo-frontend:latest
     container_name: frontend
     ports:
       - "80:80"

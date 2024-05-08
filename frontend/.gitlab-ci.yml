@@ -73,6 +73,7 @@ deploy-frontend-test:
 
 delete-frontend-test:
   stage: deploy
+  image: docker:24.0.7-alpine3.19
   when: manual
   environment:
     name: frontend/${CI_COMMIT_REF_SLUG}

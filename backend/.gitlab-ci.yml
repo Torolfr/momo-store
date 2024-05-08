@@ -35,7 +35,7 @@ unittest:
     - cd backend
     - go test -v ./...
 
-build-backend-docker:
+build-backend-docker-image:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
@@ -48,7 +48,7 @@ build-backend-docker:
       --build-arg VERSION=${VERSION}
       --cache=true
 
-release-backend:
+release-backend-docker-image:
   variables:
     GIT_STRATEGY: none
   image:
@@ -61,12 +61,12 @@ release-backend:
   script:
     - crane tag ${CI_REGISTRY_IMAGE}/momo-backend:${CI_COMMIT_SHA} latest
 
-deploy-backend-docker:
+deploy-backend-test:
   stage: deploy
   image: docker:24.0.7-alpine3.19
   environment:
     name: backend/${CI_COMMIT_REF_SLUG}
-    # on_stop: delete-deploy-backend-docker
+    on_stop: delete-backend-test
   before_script:
     - apk add docker-cli-compose openssh-client
     - eval $(ssh-agent -s)
@@ -79,3 +79,22 @@ deploy-backend-docker:
   script:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     - docker-compose --context remote-host up --detach --force-recreate --pull "always"  backend
+
+delete-backend-test:
+  stage: deploy
+  image: docker:24.0.7-alpine3.19
+  when: manual
+  environment:
+    name: backend/${CI_COMMIT_REF_SLUG}
+    action: stop
+  before_script:
+    - apk add docker-cli-compose openssh-client bash
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 600 ~/.ssh
+    - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - docker context create remote --description "remote ssh" --docker "host=ssh://${DEV_USER}@${DEV_HOST}" 
+  script:
+    - docker --context remote compose down backend --rmi all

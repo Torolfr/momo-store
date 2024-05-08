@@ -88,4 +88,4 @@ delete-frontend-test:
     - chmod 644 ~/.ssh/known_hosts
     - docker context create remote --description "remote ssh" --docker "host=ssh://${DEV_USER}@${DEV_HOST}" 
   script:
-    - docker --context remote compose down frontend --rmi
+    - docker --context remote compose down frontend --rmi frontend

@@ -26,7 +26,7 @@ sonarqube-sast:
       -Dsonar.login="${SONAR_LOGIN_FRONT}"
   allow_failure: true
 
-build-frontend-docker:
+build-frontend-docker-image:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
@@ -39,7 +39,7 @@ build-frontend-docker:
       --build-arg VERSION=${VERSION}
       --cache=true
 
-release-frontend-docker:
+release-frontend-docker-image:
   variables:
     GIT_STRATEGY: none
   image:
@@ -57,7 +57,7 @@ deploy-frontend-test:
   environment:
     name: frontend/${CI_COMMIT_REF_SLUG}
     url: http://${DEV_HOST}
-    # on_stop: delete-deploy-frontend-docker
+    on_stop: delete-frontend-test
   before_script:
     - apk add docker-cli-compose openssh-client bash
     - eval $(ssh-agent -s)
@@ -71,3 +71,18 @@ deploy-frontend-test:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     - docker --context remote compose up frontend -d --pull "always" --force-recreate
 
+delete-deploy-frontend-docker:
+  stage: deploy
+  when: manual
+  environment:
+    name: frontend/${CI_COMMIT_REF_SLUG}
+    action: stop
+  before_script:
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 600 ~/.ssh
+    - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:

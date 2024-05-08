@@ -71,7 +71,7 @@ deploy-frontend-test:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     - docker --context remote compose up frontend -d --pull "always" --force-recreate
 
-delete-deploy-frontend-docker:
+delete-frontend-test:
   stage: deploy
   when: manual
   environment:
@@ -85,4 +85,6 @@ delete-deploy-frontend-docker:
     - chmod 600 ~/.ssh
     - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    - docker context create remote --description "remote ssh" --docker "host=ssh://${DEV_USER}@${DEV_HOST}" 
   script:
+    - docker --context remote compose down frontend --rmi

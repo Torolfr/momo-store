@@ -79,7 +79,7 @@ delete-frontend-test:
     name: frontend/${CI_COMMIT_REF_SLUG}
     action: stop
   before_script:
-    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+    - apk add docker-cli-compose openssh-client bash
     - eval $(ssh-agent -s)
     - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh

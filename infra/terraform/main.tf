@@ -1,19 +1,16 @@
-locals {
-  folder_id   = "b1gia87mbaom********"
-}
-
+# k8s-cluster
 resource "yandex_kubernetes_cluster" "k8s-zonal" {
-  name = "k8s-zonal"
-  network_id = yandex_vpc_network.mynet.id
+  name          = "k8s-zonal"
+  network_id    = yandex_vpc_network.k8s-net.id
   master {
     master_location {
-      zone      = yandex_vpc_subnet.mysubnet.zone
-      subnet_id = yandex_vpc_subnet.mysubnet.id
+      zone      = yandex_vpc_subnet.k8s-subnet.zone
+      subnet_id = yandex_vpc_subnet.k8s-subnet.id
     }
     security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
   }
-  service_account_id      = yandex_iam_service_account.myaccount.id
-  node_service_account_id = yandex_iam_service_account.myaccount.id
+  service_account_id      = yandex_iam_service_account.k8s-sa.id
+  node_service_account_id = yandex_iam_service_account.k8s-sa.id
   depends_on = [
     yandex_resourcemanager_folder_iam_member.k8s-clusters-agent,
     yandex_resourcemanager_folder_iam_member.vpc-public-admin,
@@ -25,50 +22,53 @@ resource "yandex_kubernetes_cluster" "k8s-zonal" {
   }
 }
 
-resource "yandex_vpc_network" "mynet" {
-  name = "mynet"
+# network
+resource "yandex_vpc_network" "k8s-net" {
+  folder_id = var.folder_id
+  name      = "k8s-net"
 }
-
-resource "yandex_vpc_subnet" "mysubnet" {
-  name = "mysubnet"
+resource "yandex_vpc_subnet" "k8s-subnet" {
+  name           = "k8s-subnet"
   v4_cidr_blocks = ["10.1.0.0/16"]
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mynet.id
+  zone           = var.zone
+  network_id     = yandex_vpc_network.k8s-net.id
 }
 
-resource "yandex_iam_service_account" "myaccount" {
+# service-account
+resource "yandex_iam_service_account" "k8s-sa" {
   name        = "zonal-k8s-account"
   description = "K8S zonal service account"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "k8s-clusters-agent" {
   # Сервисному аккаунту назначается роль "k8s.clusters.agent".
-  folder_id = local.folder_id
+  folder_id = var.folder_id
   role      = "k8s.clusters.agent"
-  member    = "serviceAccount:${yandex_iam_service_account.myaccount.id}"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "vpc-public-admin" {
   # Сервисному аккаунту назначается роль "vpc.publicAdmin".
-  folder_id = local.folder_id
+  folder_id = var.folder_id
   role      = "vpc.publicAdmin"
-  member    = "serviceAccount:${yandex_iam_service_account.myaccount.id}"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "images-puller" {
   # Сервисному аккаунту назначается роль "container-registry.images.puller".
-  folder_id = local.folder_id
+  folder_id = var.folder_id
   role      = "container-registry.images.puller"
-  member    = "serviceAccount:${yandex_iam_service_account.myaccount.id}"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "encrypterDecrypter" {
   # Сервисному аккаунту назначается роль "kms.keys.encrypterDecrypter".
-  folder_id = local.folder_id
+  folder_id = var.folder_id
   role      = "kms.keys.encrypterDecrypter"
-  member    = "serviceAccount:${yandex_iam_service_account.myaccount.id}"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
+# security
 resource "yandex_kms_symmetric_key" "kms-key" {
   # Ключ Yandex Key Management Service для шифрования важной информации, такой как пароли, OAuth-токены и SSH-ключи.
   name              = "kms-key"
@@ -79,7 +79,7 @@ resource "yandex_kms_symmetric_key" "kms-key" {
 resource "yandex_vpc_security_group" "k8s-public-services" {
   name        = "k8s-public-services"
   description = "Правила группы разрешают подключение к сервисам из интернета. Примените правила только для групп узлов."
-  network_id  = yandex_vpc_network.mynet.id
+  network_id  = yandex_vpc_network.k8s-net.id
   ingress {
     protocol          = "TCP"
     description       = "Правило разрешает проверки доступности с диапазона адресов балансировщика нагрузки. Нужно для работы отказоустойчивого кластера Managed Service for Kubernetes и сервисов балансировщика."
@@ -97,7 +97,7 @@ resource "yandex_vpc_security_group" "k8s-public-services" {
   ingress {
     protocol          = "ANY"
     description       = "Правило разрешает взаимодействие под-под и сервис-сервис. Укажите подсети вашего кластера Managed Service for Kubernetes и сервисов."
-    v4_cidr_blocks    = concat(yandex_vpc_subnet.mysubnet.v4_cidr_blocks)
+    v4_cidr_blocks    = concat(yandex_vpc_subnet.k8s-subnet.v4_cidr_blocks)
     from_port         = 0
     to_port           = 65535
   }
@@ -120,4 +120,44 @@ resource "yandex_vpc_security_group" "k8s-public-services" {
     from_port         = 0
     to_port           = 65535
   }
+}
+
+# Node-group
+resource "yandex_kubernetes_node_group" "k8s-node-group" {
+    name       = "k8s-node-group"
+    cluster_id = yandex_kubernetes_cluster.k8s-zonal.id
+    labels = {
+    "app" = "momo-store"
+    }
+    instance_template {
+      platform_id="standard-v3"
+      network_interface {
+        nat        = true
+        subnet_ids = [yandex_vpc_subnet.k8s-subnet.id]
+      }
+      resources {
+        memory = 4
+        cores  = 2
+      }
+      boot_disk {
+        type = "network-hdd"
+        size = 64
+      }
+    }
+    scale_policy {
+        auto_scale {
+        min     = 1
+        max     = 3
+        initial = 2
+        }
+    }
+    allocation_policy {
+      location {
+        zone = var.zone
+      }
+    }
+    maintenance_policy {
+    auto_upgrade = true
+    auto_repair  = true
+    }
 }

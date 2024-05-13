@@ -148,7 +148,7 @@ resource "yandex_kubernetes_node_group" "k8s-node-group" {
         auto_scale {
         min     = 1
         max     = 3
-        initial = 2
+        initial = 1
         }
     }
     allocation_policy {

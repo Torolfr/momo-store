@@ -7,6 +7,7 @@ resource "yandex_kubernetes_cluster" "k8s-zonal" {
       zone      = yandex_vpc_subnet.k8s-subnet.zone
       subnet_id = yandex_vpc_subnet.k8s-subnet.id
     }
+    public_ip          = true
     security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
   }
   service_account_id      = yandex_iam_service_account.k8s-sa.id

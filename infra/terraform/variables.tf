@@ -21,13 +21,3 @@ variable "zone" {
   type        = string
   default     = "ru-central1-a"
 }
-
-variable "backend_access_key" {
-  description = "Access key to terraform Backend Storage service"
-  sensitive   = true
-}
-
-variable "backend_secret_key" {
-  description = "Secret key to terraform Backend Storage service"
-  sensitive   = true
-}

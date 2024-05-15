@@ -6,9 +6,7 @@ release-helm-chart:
   stage: release
   image: alpine/helm:3.14.4
   script:
-    - pwd
-    - cd infra/momo-store-chart/
-    - pwd
+    - cd infra
     - helm package momo-store-chart
     - curl -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} ${NEXUS_HELM_REPO} --upload-file sausage-store-*.tgz
 

@@ -2,12 +2,13 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: backend
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
 spec:
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: backend
+    name: {{ .Chart.Name }}
   updatePolicy:
     updateMode: "Auto"
   resourcePolicy:

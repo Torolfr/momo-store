@@ -1,3 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
     server {
         listen 80;
     
@@ -8,7 +15,7 @@
         }
     
         location ~ ^/(?:products|categories|orders|metrics|auth/whoami|health) {
-            proxy_pass http://backend:8081;
+            proxy_pass http://backend:{{ .Values.backend.port }};
         }
 
         error_page   500 502 503 504  /50x.html;

@@ -2,15 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: {{ .Chart.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: backend
+    app: {{ .Chart.Name }}
+    app.kubernetes.io/name: momo-{{ .Chart.Name }}
     app.kubernetes.io/instance: "{{ .Release.Name }}"
     app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
     app.kubernetes.io/managed-by: "{{ .Release.Service }}"
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app.kubernetes.io/component: backend
+    app.kubernetes.io/component: {{ .Chart.Name }}
     app.kubernetes.io/part-of: momo-store
     env: "{{ .Values.global.environment }}"
 spec:
@@ -23,27 +24,27 @@ spec:
       maxSurge: 20%
   selector:
     matchLabels:
-      app: backend
+      app: {{ .Chart.Name }}
   template:
     metadata:
       annotations:
         prometheus.io/path: /metrics
-        prometheus.io/port: "8081"
+        prometheus.io/port: {{ .Values.backend.port }}
         prometheus.io/scrape: "true"
       labels:
-        app: backend
+        app: {{ .Chart.Name }}
     spec:
       containers:
         - image: "{{ .Values.global.backend.image }}:{{ .Values.global.backend.tag }}"
-          name: backend
+          name: app: {{ .Chart.Name }}
           imagePullPolicy: Always
           ports:
-            - name: backend
-              containerPort: 8081
+            - name: {{ .Chart.Name }}
+              containerPort: {{ .Values.backend.port }}
           livenessProbe:
             httpGet:
               path: /health
-              port: 8081
+              port: {{ .Values.backend.port }}
             initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 2

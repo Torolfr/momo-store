@@ -32,12 +32,12 @@ spec:
           image: "{{ .Values.global.frontend.image }}:{{ .Values.global.frontend.tag }}"
           imagePullPolicy: Always
           resources:
-          requests:
-            memory: "512Mi"
-            cpu: "100m"
-          limits:
-            memory: "1024Mi"
-            cpu: "200m"
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/default.conf

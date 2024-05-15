@@ -29,7 +29,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/path: /metrics
-        prometheus.io/port: {{ .Values.global.backend.port }}
+        prometheus.io/port: "{{ .Values.global.backend.port }}"
         prometheus.io/scrape: "true"
       labels:
         app: {{ .Chart.Name }}

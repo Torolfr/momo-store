@@ -21,7 +21,7 @@ backend:
     changes:
       - backend/**/*
 
-deploy-production:
+helm-deploy-production:
   stage: module-pipelines
   when: manual
   trigger:

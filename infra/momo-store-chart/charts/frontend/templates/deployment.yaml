@@ -45,11 +45,11 @@ spec:
               readOnly: true
           ports:
             - name: {{ .Chart.Name }}
-              containerPort: {{ .Values.frontend.port }}
+              containerPort: {{ .Values.global.frontend.port }}
           livenessProbe:
             httpGet:
               path: /
-              port: {{ .Values.frontend.port }}
+              port: {{ .Values.global.frontend.port }}
             initialDelaySeconds: 10
             periodSeconds: 30
             timeoutSeconds: 1

@@ -15,7 +15,7 @@ data:
         }
     
         location ~ ^/(?:products|categories|orders|metrics|auth/whoami|health) {
-            proxy_pass http://backend:{{ .Values.backend.port }};
+            proxy_pass http://backend:{{ .Values.global.backend.port }};
         }
 
         error_page   500 502 503 504  /50x.html;

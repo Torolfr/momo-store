@@ -32,4 +32,4 @@ spec:
               service:
                 name: {{ .Chart.Name }}
                 port:
-                  number: {{ .Values.frontend.port }}
+                  number: {{ .Values.global.frontend.port }}

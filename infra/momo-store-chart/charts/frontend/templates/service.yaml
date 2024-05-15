@@ -11,6 +11,6 @@ spec:
   selector:
     app: {{ .Chart.Name }}
   ports:
-  - port: {{ .Values.frontend.port }}
+  - port: {{ .Values.global.frontend.port }}
     protocol: TCP
-    targetPort: {{ .Values.frontend.port }}
+    targetPort: {{ .Values.global.frontend.port }}

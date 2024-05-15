@@ -29,7 +29,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/path: /metrics
-        prometheus.io/port: {{ .Values.backend.port }}
+        prometheus.io/port: {{ .Values.global.backend.port }}
         prometheus.io/scrape: "true"
       labels:
         app: {{ .Chart.Name }}
@@ -40,11 +40,11 @@ spec:
           imagePullPolicy: Always
           ports:
             - name: {{ .Chart.Name }}
-              containerPort: {{ .Values.backend.port }}
+              containerPort: {{ .Values.global.backend.port }}
           livenessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.backend.port }}
+              port: {{ .Values.global.backend.port }}
             initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 2

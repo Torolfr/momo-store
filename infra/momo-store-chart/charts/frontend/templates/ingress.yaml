@@ -21,7 +21,7 @@ spec:
   tls:
     - hosts:
         - "{{ .Values.global.frontend.fqdn }}"
-        secretName: letsencrypt
+      secretName: letsencrypt
   rules:
     - host: "{{ .Values.global.frontend.fqdn }}"
       http:

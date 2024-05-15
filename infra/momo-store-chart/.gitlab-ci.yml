@@ -8,9 +8,6 @@ release-helm-chart:
   script:
     - helm package momo-store-chart
     - curl -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} ${NEXUS_HELM_REPO} --upload-file sausage-store-*.tgz
-  only:
-    changes:
-      - momo-store-chart/**/*
 
 deploy-helm-chart:
   stage: deploy
@@ -23,3 +20,5 @@ deploy-helm-chart:
     - helm repo add nexus ${NEXUS_HELM_REPO} --username ${NEXUS_REPO_USER} --password ${NEXUS_REPO_PASS}
     - helm repo update
     - helm upgrade --install momo-store --atomic --timeout 15m nexus/momo-store
+  after_script:
+    - rm ~/.kube/config

@@ -20,3 +20,16 @@ backend:
   only:
     changes:
       - backend/**/*
+
+deploy-production:
+  stage: module-pipelines
+  when: manual
+  trigger:
+    include:
+      - local: "/infra/momo-store-chart/.gitlab-ci.yml"
+    strategy: depend
+  only:
+    changes:
+      - frontend/**/*
+      - backend/**/*
+      - infra/momo-store-chart/**/*

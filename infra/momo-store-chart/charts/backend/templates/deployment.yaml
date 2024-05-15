@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - image: "{{ .Values.global.backend.image }}:{{ .Values.global.backend.tag }}"
-          name: app: {{ .Chart.Name }}
+          name: {{ .Chart.Name }}
           imagePullPolicy: Always
           ports:
             - name: {{ .Chart.Name }}

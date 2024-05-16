@@ -1,0 +1,35 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ .Chart.Name }}-ingress"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}-ingress"
+    app.kubernetes.io/instance: momo-store
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+    helm.sh/chart: "{{ .Chart.Name }}-ingress-{{ .Chart.Version }}"
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: momo-store
+    env: {{ .Values.global.environment }}
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - "{{ .Values.global.frontend.fqdn }}"
+      secretName: letsencrypt
+  rules:
+    - host: "{{ .Values.global.frontend.fqdn }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Chart.Name }}
+                port:
+                  number: {{ .Values.global.frontend.port }}

@@ -1,0 +1,26 @@
+stages:
+  - release
+  - deploy
+
+release-helm-chart:
+  stage: release
+  image: alpine/helm:3.14.4
+  script:
+    - cd infra
+    - helm package momo-store-chart
+    - ls -lah
+    - curl -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} ${NEXUS_HELM_REPO} --upload-file momo-store-*.tgz
+
+deploy-helm-chart:
+  stage: deploy
+  image: alpine/helm:3.14.4
+  before_script:
+    - mkdir ~/.kube
+    - echo ${KUBECONFIG} | base64 -d > ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+  script:
+    - helm repo add nexus ${NEXUS_HELM_REPO} --username ${NEXUS_REPO_USER} --password ${NEXUS_REPO_PASS}
+    - helm repo update
+    - helm upgrade --install momo-store --atomic --timeout 15m nexus/momo-store
+  after_script:
+    - rm ~/.kube/config

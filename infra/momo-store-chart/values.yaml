@@ -1,0 +1,21 @@
+global:
+  environment: production
+  revisionHistoryLimit: 12
+  dockerconfigjson: ewogICAgICAgICJhdXRocyI6IHsKICAgICAgICAgICAgICAgICJnaXRsYWIucHJha3Rpa3VtLXNlcnZpY2VzLnJ1OjUwNTAiOiB7CiAgICAgICAgICAgICAgICAgICAgICAgICJhdXRoIjogIloybDBiR0ZpTFhKbFoybHpkSEo1TFhSdmEyVnVPbWRzWkhRdGR6WlhTSEp5ZVhNMFgyMVRZbXRTUjNwMmRubz0iCiAgICAgICAgICAgICAgICB9CiAgICAgICAgfQp9
+
+  frontend:
+    replicas: 1
+    image: gitlab.praktikum-services.ru:5050/std-024-29/momo-srore/momo-frontend
+    tag: latest
+    port: 80
+    fqdn: torolfr-momo-store.mooo.com
+
+  backend:
+    image: gitlab.praktikum-services.ru:5050/std-024-29/momo-srore/momo-backend
+    tag: latest
+    port: 8081
+    replicas: 2
+    minallowed_cpu: 0m
+    minallowed_memory: 0Mi
+    maxallowed_cpu: 1000m
+    maxallowed_memory: 512Mi

@@ -14,10 +14,9 @@ deploy-helm-chart:
   stage: deploy
   image: alpine/helm:3.14.4
   before_script:
-    - pwd
     - mkdir ~/.kube
     - echo ${KUBECONFIG} | base64 -d > ~/.kube/config
-    - echo ${ca_pem} > ~/.kube/ca.pem
+    - echo ${ca_pem} | base64 -d > ~/.kube/ca.pem
     - export KUBECONFIG=~/.kube/config
   script:
     - helm repo add nexus ${NEXUS_HELM_REPO} --username ${NEXUS_REPO_USER} --password ${NEXUS_REPO_PASS}

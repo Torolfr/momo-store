@@ -8,7 +8,7 @@ global:
     image: gitlab.praktikum-services.ru:5050/std-024-29/momo-srore/momo-frontend
     tag: latest
     port: 80
-    fqdn: torolfr-momo-store.mooo.com
+    fqdn: momo-store.torolfr.ru
 
   backend:
     image: gitlab.praktikum-services.ru:5050/std-024-29/momo-srore/momo-backend

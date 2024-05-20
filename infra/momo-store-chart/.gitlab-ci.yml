@@ -18,6 +18,7 @@ deploy-helm-chart:
     - echo ${KUBECONFIG} | base64 -d > ~/.kube/config
     - echo ${ca_pem} | base64 -d > ~/.kube/ca.pem
     - export KUBECONFIG=~/.kube/config
+    - helm list
   script:
     - helm repo add nexus ${NEXUS_HELM_REPO} --username ${NEXUS_REPO_USER} --password ${NEXUS_REPO_PASS}
     - helm repo update

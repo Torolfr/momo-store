@@ -14,8 +14,7 @@ variables:
   SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
 
 .ssh_auth:
-   stage: deploy
-   before_script:
+  before_script:
     - eval $(ssh-agent -s)
     - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh

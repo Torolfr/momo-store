@@ -13,6 +13,16 @@ variables:
   VERSION: 1.0.${CI_PIPELINE_ID}
   SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
 
+.ssh_auth:
+   stage: deploy
+   before_script:
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 600 ~/.ssh
+    - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts 
+
 sonarqube-sast:
   stage: test
   image: sonarsource/sonar-scanner-cli:latest
@@ -67,14 +77,15 @@ deploy-backend-test:
   environment:
     name: backend/${CI_COMMIT_REF_SLUG}
     on_stop: delete-backend-test
+  extends: .ssh_auth
   before_script:
     - apk add docker-cli-compose openssh-client
-    - eval $(ssh-agent -s)
-    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 600 ~/.ssh
-    - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
+    # - eval $(ssh-agent -s)
+    # - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    # - mkdir -p ~/.ssh
+    # - chmod 600 ~/.ssh
+    # - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
+    # - chmod 644 ~/.ssh/known_hosts
     - docker context create remote-host --description "remote ssh" --docker "host=ssh://${DEV_USER}@${DEV_HOST}"
   script:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
@@ -87,14 +98,15 @@ delete-backend-test:
   environment:
     name: backend/${CI_COMMIT_REF_SLUG}
     action: stop
+  extends: .ssh_auth
   before_script:
     - apk add docker-cli-compose openssh-client bash
-    - eval $(ssh-agent -s)
-    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 600 ~/.ssh
-    - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
+    # - eval $(ssh-agent -s)
+    # - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    # - mkdir -p ~/.ssh
+    # - chmod 600 ~/.ssh
+    # - ssh-keyscan ${DEV_HOST} >> ~/.ssh/known_hosts
+    # - chmod 644 ~/.ssh/known_hosts
     - docker context create remote --description "remote ssh" --docker "host=ssh://${DEV_USER}@${DEV_HOST}" 
   script:
     - docker --context remote compose down backend --rmi all

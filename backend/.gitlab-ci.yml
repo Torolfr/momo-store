@@ -87,7 +87,6 @@ delete-backend-test:
   environment:
     name: backend/${CI_COMMIT_REF_SLUG}
     action: stop
-  extends: .ssh_auth
   before_script:
     - apk add docker-cli-compose openssh-client bash
     - eval $(ssh-agent -s)

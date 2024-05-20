@@ -8,19 +8,17 @@ release-helm-chart:
   script:
     - cd infra
     - helm package momo-store-chart
-    - ls -lah
     - curl -v -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} ${NEXUS_HELM_REPO} --upload-file momo-store-*.tgz
 
 deploy-helm-chart:
   stage: deploy
   image: alpine/helm:3.14.4
   before_script:
+    - pwd
     - mkdir ~/.kube
     - echo ${KUBECONFIG} | base64 -d > ~/.kube/config
     - echo ${ca_pem} > ~/.kube/ca.pem
-    - cat ~/.kube/ca.pem 
     - export KUBECONFIG=~/.kube/config
-    - cat ~/.kube/config
   script:
     - helm repo add nexus ${NEXUS_HELM_REPO} --username ${NEXUS_REPO_USER} --password ${NEXUS_REPO_PASS}
     - helm repo update

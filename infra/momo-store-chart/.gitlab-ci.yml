@@ -8,8 +8,7 @@ release-helm-chart:
   script:
     - cd infra
     - helm package momo-store-chart
-    - ls -lah
-    - curl -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} ${NEXUS_HELM_REPO} --upload-file momo-store-*.tgz
+    - curl -v -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} ${NEXUS_HELM_REPO} --upload-file momo-store-*.tgz
 
 deploy-helm-chart:
   stage: deploy

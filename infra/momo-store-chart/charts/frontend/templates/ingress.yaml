@@ -14,8 +14,6 @@ metadata:
     app.kubernetes.io/part-of: momo-store
     env: {{ .Values.global.environment }}
   annotations:
-    # cert-manager.io/cluster-issuer: "letsencrypt"
-    # acme.cert-manager.io/http01-edit-in-place: "true"
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "yc-clusterissuer"
 spec:
